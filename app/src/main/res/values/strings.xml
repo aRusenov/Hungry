@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Hungry</string>
+    <string name="title_activity_add_recipe">AddRecipeActivity</string>
+</resources>
