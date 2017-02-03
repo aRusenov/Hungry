@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.google.gson.GsonBuilder;
 import com.twobonkers.hungry.data.RecipesService;
-import com.twobonkers.hungry.data.models.MyAdapterFactory;
+import com.twobonkers.hungry.domain.lib.autogson.AutoValueAdapterFactory;
 import com.twobonkers.hungry.presentation.utils.ConfigLoader;
 
 import retrofit2.Retrofit;
@@ -28,7 +28,7 @@ public class HApplication extends Application {
                 .baseUrl(ConfigLoader.getConfigValue(this, "api_url"))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
-                        .registerTypeAdapterFactory(MyAdapterFactory.create())
+                        .registerTypeAdapterFactory(new AutoValueAdapterFactory())
                         .create()))
                 .build();
 

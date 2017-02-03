@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <data>
+
+        <variable
+            name="ingredient"
+            type="com.twobonkers.hungry.data.models.Ingredient"
+            />
+    </data>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/tv_ingredient"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:textSize="15sp"
+            android:text='@{String.valueOf(ingredient.quantity) + " " + ingredient.name}'
+            tools:text="3 tbsp brown sugar"
+            />
+
+    </LinearLayout>
+
+</layout>

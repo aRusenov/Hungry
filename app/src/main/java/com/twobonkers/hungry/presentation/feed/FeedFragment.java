@@ -1,5 +1,6 @@
 package com.twobonkers.hungry.presentation.feed;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -15,6 +16,7 @@ import com.mikepenz.fastadapter.items.AbstractItem;
 import com.mikepenz.fastadapter_extensions.scroll.EndlessRecyclerOnScrollListener;
 import com.twobonkers.hungry.HApplication;
 import com.twobonkers.hungry.R;
+import com.twobonkers.hungry.presentation.details.DetailsActivity;
 import com.twobonkers.hungry.presentation.views.BaseFragment;
 import com.twobonkers.hungry.presentation.utils.FastAdapterMapper;
 
@@ -23,7 +25,7 @@ import butterknife.ButterKnife;
 import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
-import static com.twobonkers.hungry.domain.lib.Transformers.observeForUI;
+import static com.twobonkers.hungry.domain.lib.rx.Transformers.observeForUI;
 
 public class FeedFragment extends BaseFragment<FeedViewModel> {
 
@@ -52,8 +54,12 @@ public class FeedFragment extends BaseFragment<FeedViewModel> {
             }
         };
 
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            viewModel.inputs.refresh();
+        swipeRefreshLayout.setOnRefreshListener(() -> viewModel.inputs.refresh());
+
+        adapter.withOnClickListener((v, adapter1, item, position) -> {
+            Intent intent = DetailsActivity.prepareIntent(getContext(), item.getRecipe());
+            startActivity(intent);
+            return true;
         });
 
         rvFeed.setAdapter(footerAdapter.wrap(adapter));

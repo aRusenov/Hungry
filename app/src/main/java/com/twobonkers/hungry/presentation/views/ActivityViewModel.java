@@ -1,31 +1,23 @@
 package com.twobonkers.hungry.presentation.views;
 
-import android.content.Context;
-import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Pair;
 
-import com.trello.rxlifecycle.android.FragmentEvent;
-import com.trello.rxlifecycle.components.support.RxFragment;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.trello.rxlifecycle.android.ActivityEvent;
 
 import rx.Observable;
-import rx.Subscription;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
-public class BaseViewModel<View extends RxFragment> {
+
+public class ActivityViewModel<View extends BaseActivity> {
 
     private final PublishSubject<View> viewChange = PublishSubject.create();
     private final Observable<View> view = viewChange.filter(v -> v != null);
-    private final List<Subscription> subscriptions = new ArrayList<>();
 
     @CallSuper
-    protected void onCreate(final @NonNull Context context, final @Nullable Bundle savedInstanceState) {
+    protected void onCreate() {
         Timber.d("onCreate %s", this.toString());
         dropView();
     }
@@ -45,9 +37,6 @@ public class BaseViewModel<View extends RxFragment> {
     @CallSuper
     protected void onDestroy() {
         Timber.d("onDestroy %s", this.toString());
-        for (final Subscription subscription : subscriptions) {
-            subscription.unsubscribe();
-        }
         viewChange.onCompleted();
     }
 
@@ -71,14 +60,10 @@ public class BaseViewModel<View extends RxFragment> {
     public @NonNull <T> Observable.Transformer<T, T> bindToLifecycle() {
         return source -> source.takeUntil(
                 view.switchMap(v -> v.lifecycle().map(e -> Pair.create(v, e)))
-                        .filter(ve -> isFinished(ve.first, ve.second))
-        );
+                        .filter(ve -> isBeingRemoved(ve.first, ve.second)));
     }
 
-    /**
-     * Determines from a view and lifecycle event if the view's life is over.
-     */
-    private boolean isFinished(final @NonNull View view, final @NonNull FragmentEvent event) {
-        return event == FragmentEvent.DESTROY && view.isRemoving();
+    private boolean isBeingRemoved(View view, ActivityEvent event) {
+        return event == ActivityEvent.DESTROY.DESTROY && view.isFinishing();
     }
 }

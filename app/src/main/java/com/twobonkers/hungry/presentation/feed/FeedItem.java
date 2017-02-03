@@ -8,7 +8,7 @@ import com.bumptech.glide.Glide;
 import com.mikepenz.fastadapter.items.AbstractItem;
 import com.mikepenz.fastadapter.utils.ViewHolderFactory;
 import com.twobonkers.hungry.R;
-import com.twobonkers.hungry.data.models.RecipeFeedModel;
+import com.twobonkers.hungry.data.models.Recipe;
 import com.twobonkers.hungry.databinding.ItemFeedBinding;
 
 import java.util.List;
@@ -31,13 +31,13 @@ public class FeedItem extends AbstractItem<FeedItem, FeedItem.ViewHolder> {
         return FACTORY;
     }
 
-    private RecipeFeedModel recipe;
+    private Recipe recipe;
 
-    public FeedItem(RecipeFeedModel recipe) {
+    public FeedItem(Recipe recipe) {
         this.recipe = recipe;
     }
 
-    public RecipeFeedModel getRecipe() {
+    public Recipe getRecipe() {
         return recipe;
     }
 
@@ -62,7 +62,7 @@ public class FeedItem extends AbstractItem<FeedItem, FeedItem.ViewHolder> {
         holder.binding.setRecipe(recipe);
 
         Glide.with(holder.itemView.getContext())
-                .load(recipe.imageUrl())
+                .load(recipe.previewImageUrl())
                 .into(holder.ivPreview);
     }
 

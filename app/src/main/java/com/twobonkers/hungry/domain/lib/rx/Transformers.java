@@ -1,4 +1,4 @@
-package com.twobonkers.hungry.domain.lib;
+package com.twobonkers.hungry.domain.lib.rx;
 
 import android.support.annotation.NonNull;
 

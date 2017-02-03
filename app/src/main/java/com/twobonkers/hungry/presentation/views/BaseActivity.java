@@ -4,10 +4,10 @@ import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 
-import com.trello.rxlifecycle.components.support.RxFragment;
+import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 import com.twobonkers.hungry.presentation.utils.LifecycleRetainer;
 
-public class BaseFragment<ViewModel extends FragmentViewModel> extends RxFragment {
+public class BaseActivity<ViewModel extends ActivityViewModel> extends RxAppCompatActivity {
 
     protected ViewModel viewModel;
 
@@ -29,7 +29,9 @@ public class BaseFragment<ViewModel extends FragmentViewModel> extends RxFragmen
     @Override
     public void onPause() {
         super.onPause();
-        viewModel.onPause();
+        if (viewModel != null) {
+            viewModel.onPause();
+        }
     }
 
     @CallSuper
@@ -45,7 +47,7 @@ public class BaseFragment<ViewModel extends FragmentViewModel> extends RxFragmen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (getActivity().isFinishing() && viewModel != null) {
+        if (isFinishing() && viewModel != null) {
             LifecycleRetainer.getInstance().remove(viewModel);
             viewModel.onDestroy();
             viewModel = null;

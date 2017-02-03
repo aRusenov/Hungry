@@ -71,8 +71,6 @@ dependencies {
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
 
     compile 'com.google.code.gson:gson:2.8.0'
-    apt 'com.ryanharter.auto.value:auto-value-gson:0.4.5'
-    provided 'com.ryanharter.auto.value:auto-value-gson:0.4.5'
 
     compile 'com.jakewharton.timber:timber:4.5.1'
 

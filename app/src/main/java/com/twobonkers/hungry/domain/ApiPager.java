@@ -1,7 +1,7 @@
 package com.twobonkers.hungry.domain;
 
 
-import com.twobonkers.hungry.domain.lib.Transformers;
+import com.twobonkers.hungry.domain.lib.rx.Transformers;
 
 import rx.Observable;
 import rx.functions.Func1;

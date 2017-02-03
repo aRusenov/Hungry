@@ -1,6 +1,6 @@
 package com.twobonkers.hungry.presentation.feed;
 
-import com.twobonkers.hungry.data.models.RecipeFeedModel;
+import com.twobonkers.hungry.data.models.Recipe;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import rx.Observable;
 
 public interface FeedViewModelOutputs {
 
-    Observable<List<RecipeFeedModel>> recipes();
+    Observable<List<Recipe>> recipes();
 
     Observable<Boolean> showLoading();
 
