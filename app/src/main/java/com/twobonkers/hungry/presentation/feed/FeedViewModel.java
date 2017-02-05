@@ -1,10 +1,11 @@
 package com.twobonkers.hungry.presentation.feed;
 
-import com.twobonkers.hungry.data.GetRecipesResponse;
-import com.twobonkers.hungry.data.RecipesService;
 import com.twobonkers.hungry.data.models.Recipe;
+import com.twobonkers.hungry.data.remote.GetRecipesResponse;
+import com.twobonkers.hungry.data.remote.RecipesService;
 import com.twobonkers.hungry.domain.ApiPager;
 import com.twobonkers.hungry.domain.lib.rx.Transformers;
+import com.twobonkers.hungry.presentation.details.RecipeChangeBus;
 import com.twobonkers.hungry.presentation.views.FragmentViewModel;
 
 import java.util.Collections;
@@ -19,50 +20,53 @@ public class FeedViewModel extends FragmentViewModel<FeedFragment> implements Fe
     public final FeedViewModelInputs inputs = this;
     public final FeedViewModelOutputs outputs = this;
 
+    private ConcurrentArrayList<Recipe> allRecipes = new ConcurrentArrayList<>();
+
     private PublishSubject<Void> loadMore = PublishSubject.create();
     private PublishSubject<Integer> startOver = PublishSubject.create();
-    private BehaviorSubject<List<Recipe>> recipes = BehaviorSubject.create(Collections.emptyList());
-    private BehaviorSubject<Boolean> showRetry = BehaviorSubject.create();
-    private BehaviorSubject<Integer> nextPage = BehaviorSubject.create(0);
-
     private PublishSubject<Void> retryClicked = PublishSubject.create();
     private PublishSubject<Void> refresh = PublishSubject.create();
+    private BehaviorSubject<Integer> nextPage = BehaviorSubject.create(0);
 
-    private Observable<Boolean> loading;
+    private BehaviorSubject<List<Recipe>> recipes = BehaviorSubject.create(Collections.emptyList());
+    private BehaviorSubject<Boolean> loading = BehaviorSubject.create();
+    private BehaviorSubject<Boolean> showRetry = BehaviorSubject.create();
+    private BehaviorSubject<Void> lastPage = BehaviorSubject.create();
     private Observable<Throwable> error;
-    private Observable<Void> lastPage;
 
-    public FeedViewModel(RecipesService service) {
-        ApiPager<GetRecipesResponse, GetRecipesResponse, Integer> apiPager =
-                ApiPager.<GetRecipesResponse, GetRecipesResponse, Integer>builder()
-                        .loadMore(loadMore)
-                        .startOver(startOver)
-                        .makeRequest(service::getRecipes)
-                        .mapResponse(response -> response)
-                        .concater((total, page) -> {
-                            total.recipes().addAll(page.recipes());
-                            return total;
-                        })
-                        .stopWhen(response -> response.page() >= response.totalPages())
-                        .nextPageParams(page -> page + 1)
-                        .build();
+    public FeedViewModel(RecipesService service, RecipeChangeBus recipeChangeBus) {
+        ApiPager<GetRecipesResponse, GetRecipesResponse, Integer> apiPager = ApiPager.<GetRecipesResponse, GetRecipesResponse, Integer>builder()
+                .loadMore(loadMore)
+                .startOver(startOver)
+                .makeRequest(page -> service.getRecipes(page, "Bearer HI8TWT963CD1l6gdWfx0CbzPh-5hHKeoU8yuvq3KGEgpJp2TGbL0hy1FowH_IRg25duoKQh5iNvXgc7gD3e3mokc4LkMCAqNywTtoc7x6LRUWVelmo38VFAGk4N9fOJicrZsPfkFnjbiJjr64BTIw7lZUm_HXvrXvdWiCaXaLrH_VpLpalDitavgv2v3uCv26qNh2R25EToYuldxOo4LJVwLAWyk3NN1cGTuFC-olkb98G5x6ubkc0ff4piZnr53CzYEZtI6hbLuU3M28QeAz-BfG2TOlVyTy9juUwnxD5xUMv_ZQD85CfStgZK_bV2JBunfa1Ui9Sl1Sud1_TG2Hy1qQ9BbjNCrebwkIbXrxWLVKDO03UOw_KqAwINjO78cPjjjJYNaFS6LYtvBQvv_jaj9A3UthBtvhAHNoyu9Y4EwbByMyGmw9Rq7H6pLYEdGQzIB3PsD3ybnjhnd2SoE53gduHopC9UubyO3umDouZ2S44Y-ws6QL3fk9bWRphdV"))
+                .mapResponse(response -> response)
+                .stopWhen(response -> response.page() >= response.totalPages())
+                .nextPageParams(page -> page + 1)
+                .build();
+
+        recipeChangeBus.recipeChanged()
+                .compose(bindToLifecycle())
+                .subscribe(this::updateRecipe);
 
         apiPager.pages()
                 .compose(bindToLifecycle())
                 .doOnNext(response -> nextPage.onNext(response.page()))
                 .map(GetRecipesResponse::recipes)
-                .subscribe(recipes);
+                .subscribe(recipes -> {
+                    allRecipes.addAll(recipes);
+                    this.recipes.onNext(allRecipes.toList());
+                });
 
-        loading = apiPager.loading()
-                .compose(bindToLifecycle());
+        apiPager.loading()
+                .compose(bindToLifecycle())
+                .subscribe(loading);
 
         error = apiPager.error()
                 .compose(bindToLifecycle());
-        error.subscribe(__ -> showRetry.onNext(true));
 
-        lastPage = apiPager.lastPage()
+        apiPager.lastPage()
                 .compose(bindToLifecycle())
-                .cache();
+                .subscribe(lastPage);
 
         nextPage.compose(bindToLifecycle())
                 .compose(Transformers.takeWhen(retryClicked))
@@ -71,8 +75,20 @@ public class FeedViewModel extends FragmentViewModel<FeedFragment> implements Fe
                     startOver.onNext(page + 1);
                 });
 
-        refresh.subscribe(__ -> startOver.onNext(nextPage.getValue() + 1));
+        refresh.subscribe(__ -> {
+            allRecipes.clear();
+            recipes.onNext(Collections.emptyList());
+            startOver.onNext(1);
+        });
+
+        error.subscribe(__ -> showRetry.onNext(true));
+
         startOver.onNext(nextPage.getValue() + 1);
+    }
+
+    private void updateRecipe(Recipe newRecipe) {
+        allRecipes.replace(newRecipe);
+        recipes.onNext(allRecipes.toList());
     }
 
     @Override
@@ -98,11 +114,6 @@ public class FeedViewModel extends FragmentViewModel<FeedFragment> implements Fe
     @Override
     public Observable<Boolean> showRetry() {
         return showRetry;
-    }
-
-    @Override
-    public Observable<Boolean> enablePaging() {
-        return Observable.never();
     }
 
     @Override

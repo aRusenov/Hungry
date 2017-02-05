@@ -33,36 +33,24 @@
             >
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawablePadding="4dp"
+                android:id="@+id/tv_portions"
+                style="@style/RecipeInfoLabel"
                 android:drawableTop="@drawable/ic_local_pizza_grey_700_24dp"
-                android:gravity="center"
-                android:text="4 portions"
-                android:textSize="15sp"
+                tools:text="4 portions"
                 />
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawablePadding="4dp"
+                android:id="@+id/tv_prep"
+                style="@style/RecipeInfoLabel"
                 android:drawableTop="@drawable/ic_av_timer_grey_700_24dp"
-                android:gravity="center"
-                android:text="30 min"
-                android:textSize="15sp"
+                tools:text="30 min"
                 />
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawablePadding="4dp"
+                android:id="@+id/tv_favourite_count"
+                style="@style/RecipeInfoLabel"
                 android:drawableTop="@drawable/ic_favorite_grey_700_24dp"
-                android:gravity="center"
-                android:text="7 favs"
-                android:textSize="15sp"
+                tools:text="7 favs"
                 />
 
         </LinearLayout>

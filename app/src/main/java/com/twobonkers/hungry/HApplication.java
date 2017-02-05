@@ -3,8 +3,9 @@ package com.twobonkers.hungry;
 import android.app.Application;
 
 import com.google.gson.GsonBuilder;
-import com.twobonkers.hungry.data.RecipesService;
+import com.twobonkers.hungry.data.remote.RecipesService;
 import com.twobonkers.hungry.domain.lib.autogson.AutoValueAdapterFactory;
+import com.twobonkers.hungry.presentation.details.RecipeChangeBus;
 import com.twobonkers.hungry.presentation.utils.ConfigLoader;
 
 import retrofit2.Retrofit;
@@ -16,6 +17,7 @@ public class HApplication extends Application {
 
     private Retrofit retrofit;
     private RecipesService recipesService;
+    private RecipeChangeBus recipeChangeBus;
 
     @Override
     public void onCreate() {
@@ -33,9 +35,15 @@ public class HApplication extends Application {
                 .build();
 
         recipesService = retrofit.create(RecipesService.class);
+
+        recipeChangeBus = new RecipeChangeBus();
     }
 
     public RecipesService getRecipesService() {
         return recipesService;
+    }
+
+    public RecipeChangeBus getRecipeChangeBus() {
+        return recipeChangeBus;
     }
 }

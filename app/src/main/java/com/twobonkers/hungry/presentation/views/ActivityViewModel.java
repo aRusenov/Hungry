@@ -1,5 +1,6 @@
 package com.twobonkers.hungry.presentation.views;
 
+import android.content.Intent;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.util.Pair;
@@ -15,11 +16,20 @@ public class ActivityViewModel<View extends BaseActivity> {
 
     private final PublishSubject<View> viewChange = PublishSubject.create();
     private final Observable<View> view = viewChange.filter(v -> v != null);
+    private final PublishSubject<Intent> intent = PublishSubject.create();
+
+    protected Observable<Intent> intent() {
+        return intent;
+    }
 
     @CallSuper
     protected void onCreate() {
         Timber.d("onCreate %s", this.toString());
         dropView();
+    }
+
+    public void intent(Intent intent) {
+        this.intent.onNext(intent);
     }
 
     @CallSuper

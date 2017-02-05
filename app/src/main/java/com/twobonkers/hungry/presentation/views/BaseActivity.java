@@ -7,15 +7,22 @@ import android.support.annotation.Nullable;
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 import com.twobonkers.hungry.presentation.utils.LifecycleRetainer;
 
-public class BaseActivity<ViewModel extends ActivityViewModel> extends RxAppCompatActivity {
+public abstract class BaseActivity<ViewModel extends ActivityViewModel> extends RxAppCompatActivity {
 
     protected ViewModel viewModel;
+
+    protected abstract ViewModel createViewModel();
 
     @CallSuper
     @Override
     public void onCreate(final @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = LifecycleRetainer.getInstance().get(savedInstanceState);
+        if (viewModel == null) {
+            viewModel = createViewModel();
+        }
+
+        viewModel.intent(getIntent());
     }
 
     @Override

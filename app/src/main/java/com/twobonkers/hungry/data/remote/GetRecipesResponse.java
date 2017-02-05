@@ -1,4 +1,4 @@
-package com.twobonkers.hungry.data;
+package com.twobonkers.hungry.data.remote;
 
 import com.google.auto.value.AutoValue;
 import com.twobonkers.hungry.data.models.Recipe;

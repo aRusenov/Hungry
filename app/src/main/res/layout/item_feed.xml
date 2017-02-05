@@ -84,7 +84,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_below="@id/separator"
                 android:layout_marginRight="16dp"
-                android:drawableLeft="@drawable/ic_favorite_border_grey_700_24dp"
+                android:drawableLeft="@{recipe.favourited ? @drawable/ic_favorite_grey_700_24dp : @drawable/ic_favorite_border_grey_700_24dp}"
                 android:drawablePadding="4dp"
                 android:gravity="center"
                 android:text="@{String.valueOf(recipe.favouriteCount)}"

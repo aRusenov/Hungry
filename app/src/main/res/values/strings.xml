@@ -1,5 +1,14 @@
 <resources>
     <string name="app_name">Hungry</string>
+
+    <!-- Activity titles -->
     <string name="title_activity_add_recipe">AddRecipeActivity</string>
     <string name="title_activity_details">DetailsActivity</string>
+
+    <!-- DetailsActivity -->
+    <string name="success_recipe_added_favourites">Recipe added to favourites.</string>
+    <string name="success_recipe_removed_favourites">Removed from favourites.</string>
+    <string name="error_favourite_post">Error connecting to server</string>
+    <string name="suffix_minutes">" min"</string>
+    <string name="suffix_favourite_count">" favs"</string>
 </resources>

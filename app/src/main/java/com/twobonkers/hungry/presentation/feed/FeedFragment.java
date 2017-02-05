@@ -16,9 +16,10 @@ import com.mikepenz.fastadapter.items.AbstractItem;
 import com.mikepenz.fastadapter_extensions.scroll.EndlessRecyclerOnScrollListener;
 import com.twobonkers.hungry.HApplication;
 import com.twobonkers.hungry.R;
+import com.twobonkers.hungry.presentation.IntentKeys;
 import com.twobonkers.hungry.presentation.details.DetailsActivity;
-import com.twobonkers.hungry.presentation.views.BaseFragment;
 import com.twobonkers.hungry.presentation.utils.FastAdapterMapper;
+import com.twobonkers.hungry.presentation.views.BaseFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,10 +32,9 @@ public class FeedFragment extends BaseFragment<FeedViewModel> {
 
     private FastItemAdapter<FeedItem> adapter;
     private FooterAdapter<AbstractItem> footerAdapter;
-    private EndlessRecyclerOnScrollListener endlessScrollListener;
 
-    @BindView(R.id.rv_feed) RecyclerView rvFeed;
-    @BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+    protected @BindView(R.id.rv_feed) RecyclerView rvFeed;
+    protected @BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
 
     public static FeedFragment newInstance() {
         return new FeedFragment();
@@ -47,17 +47,21 @@ public class FeedFragment extends BaseFragment<FeedViewModel> {
         ButterKnife.bind(this, view);
         adapter = new FastItemAdapter<>();
         footerAdapter = new FooterAdapter<>();
-        endlessScrollListener = new EndlessRecyclerOnScrollListener(footerAdapter) {
+        EndlessRecyclerOnScrollListener endlessScrollListener = new EndlessRecyclerOnScrollListener(footerAdapter) {
             @Override
             public void onLoadMore(int currentPage) {
                 viewModel.inputs.nextPage();
             }
         };
 
-        swipeRefreshLayout.setOnRefreshListener(() -> viewModel.inputs.refresh());
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            viewModel.inputs.refresh();
+            endlessScrollListener.resetPageCount();
+        });
 
         adapter.withOnClickListener((v, adapter1, item, position) -> {
-            Intent intent = DetailsActivity.prepareIntent(getContext(), item.getRecipe());
+            Intent intent = new Intent(getContext(), DetailsActivity.class);
+            intent.putExtra(IntentKeys.RECIPE, item.getRecipe());
             startActivity(intent);
             return true;
         });
@@ -74,16 +78,14 @@ public class FeedFragment extends BaseFragment<FeedViewModel> {
         super.onViewCreated(view, savedInstanceState);
         HApplication app = (HApplication) getActivity().getApplication();
         if (viewModel == null) {
-            viewModel = new FeedViewModel(app.getRecipesService());
+            viewModel = new FeedViewModel(app.getRecipesService(), app.getRecipeChangeBus());
         }
 
         viewModel.outputs.recipes()
                 .compose(bindToLifecycle())
                 .compose(observeForUI())
                 .map(FastAdapterMapper::toFeedItems)
-                .subscribe(recipes -> {
-                    adapter.set(recipes);
-                }, Timber::e);
+                .subscribe(recipes -> adapter.set(recipes));
 
         viewModel.outputs.showLoading()
                 .mergeWith(viewModel.outputs.onLastPage().map(__ -> false))
@@ -105,15 +107,6 @@ public class FeedFragment extends BaseFragment<FeedViewModel> {
                         showRetry();
                     } else {
                         hideRetry();
-                    }
-                });
-
-        viewModel.outputs.enablePaging()
-                .compose(bindToLifecycle())
-                .compose(observeForUI())
-                .subscribe(enablePaging -> {
-                    if (enablePaging) {
-                        endlessScrollListener.resetPageCount();
                     }
                 });
 

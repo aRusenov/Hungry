@@ -5,7 +5,6 @@ import com.twobonkers.hungry.domain.lib.rx.Transformers;
 
 import rx.Observable;
 import rx.functions.Func1;
-import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
@@ -23,7 +22,6 @@ public class ApiPager<Data, Response, Params> {
     private Func1<Params, Params> nextPageParams;
     private Observable<Void> loadMore;
     private Observable<Params> startOver;
-    private Func2<Data, Data, Data> concater;
 
     private Observable<Data> pagingObservable;
 
@@ -32,20 +30,17 @@ public class ApiPager<Data, Response, Params> {
                     Func1<Response, Data> mapResponse,
                     Func1<Params, Params> nextPageParams,
                     Observable<Void> loadMore,
-                    Observable<Params> startOver,
-                    Func2<Data, Data, Data> concater) {
+                    Observable<Params> startOver) {
         this.makeRequest = makeRequest;
         this.stopWhen = stopWhen;
         this.loadMore = loadMore;
         this.mapResponse = mapResponse;
         this.nextPageParams = nextPageParams;
         this.startOver = startOver;
-        this.concater = concater;
 
         pagingObservable = this.startOver
                 .doOnNext(__ -> Timber.d("Begin"))
                 .switchMap(this::paginate)
-                .scan(concater)
                 .doOnTerminate(() -> Timber.d("Switch map terminated"));
     }
 
@@ -106,7 +101,6 @@ public class ApiPager<Data, Response, Params> {
         private Func1<Params, Params> nextPageParams;
         private Observable<Void> loadMore;
         private Observable<Params> startOver;
-        private Func2<Data, Data, Data> concater;
 
         public Builder<Data, Response, Params> makeRequest(Func1<Params, Observable<Response>> makeRequest) {
             this.makeRequest = makeRequest;
@@ -138,13 +132,8 @@ public class ApiPager<Data, Response, Params> {
             return this;
         }
 
-        public Builder<Data, Response, Params> concater(Func2<Data, Data, Data> concater) {
-            this.concater = concater;
-            return this;
-        }
-
         public ApiPager<Data, Response, Params> build() {
-            return new ApiPager<>(makeRequest, stopWhen, mapResponse, nextPageParams, loadMore, startOver, concater);
+            return new ApiPager<>(makeRequest, stopWhen, mapResponse, nextPageParams, loadMore, startOver);
         }
     }
 }

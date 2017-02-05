@@ -1,39 +1,55 @@
 package com.twobonkers.hungry.presentation.details;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.github.jorgecastilloprz.FABProgressCircle;
 import com.mikepenz.fastadapter.commons.adapters.FastItemAdapter;
+import com.twobonkers.hungry.HApplication;
 import com.twobonkers.hungry.R;
 import com.twobonkers.hungry.data.models.Recipe;
+import com.twobonkers.hungry.domain.FavouriteRecipesUseCaseImpl;
+import com.twobonkers.hungry.presentation.IntentKeys;
+import com.twobonkers.hungry.presentation.utils.FastAdapterMapper;
 import com.twobonkers.hungry.presentation.views.BaseActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import rx.android.schedulers.AndroidSchedulers;
 
 public class DetailsActivity extends BaseActivity<DetailsViewModel> {
-
-    private static final String EXTRA_RECIPE = "recipe";
 
     private FastItemAdapter<IngredientItem> ingredientsAdapter;
     private FastItemAdapter<StepItem> stepsAdapter;
 
-    @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.iv_preview) ImageView ivPreview;
-    @BindView(R.id.rv_ingredients) RecyclerView rvIngredients;
-    @BindView(R.id.rv_steps) RecyclerView rvSteps;
+    protected @BindView(R.id.coordinator) CoordinatorLayout coordinator;
+    protected @BindView(R.id.toolbar) Toolbar toolbar;
+    protected @BindView(R.id.iv_preview) ImageView ivPreview;
+    protected @BindView(R.id.rv_ingredients) RecyclerView rvIngredients;
+    protected @BindView(R.id.rv_steps) RecyclerView rvSteps;
+    protected @BindView(R.id.fab_progress) FABProgressCircle fabProgress;
+    protected @BindView(R.id.fab) FloatingActionButton fab;
 
-    public static Intent prepareIntent(Context context, Recipe recipe) {
-        Intent intent = new Intent(context, DetailsActivity.class);
-        intent.putExtra(EXTRA_RECIPE, recipe);
-        return intent;
+    protected @BindView(R.id.tv_favourite_count) TextView tvFavCount;
+    protected @BindView(R.id.tv_portions) TextView tvPortions;
+    protected @BindView(R.id.tv_prep) TextView tvPrepTime;
+
+    @Override
+    protected DetailsViewModel createViewModel() {
+        HApplication app = (HApplication) getApplication();
+        return new DetailsViewModel(
+                new FavouriteRecipesUseCaseImpl(app.getRecipesService()),
+                app.getRecipeChangeBus());
     }
 
     @Override
@@ -42,10 +58,7 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
 
-        Recipe recipe = getIntent().getParcelableExtra(EXTRA_RECIPE);
-
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(recipe.title());
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP);
         toolbar.setNavigationOnClickListener(v -> finish());
 
@@ -57,16 +70,77 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
         rvSteps.setAdapter(stepsAdapter);
         rvSteps.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
-        Glide.with(this).load(recipe.previewImageUrl()).into(ivPreview);
+        Recipe recipe = getIntent().getParcelableExtra(IntentKeys.RECIPE);
+        setRecipe(recipe);
 
-        if (savedInstanceState == null) {
-            viewModel = new DetailsViewModel();
-        }
+        viewModel.outputs.recipe()
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::updateFab);
+
+        viewModel.outputs.loading()
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayLoading);
+
+        viewModel.outputs.error()
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayFavouriteError);
+    }
+
+    @OnClick(R.id.fab_progress) void onFabClicked() {
+        viewModel.inputs.clickFavourite();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Glide.clear(ivPreview);
+    }
+
+    private void setRecipe(Recipe recipe) {
+        getSupportActionBar().setTitle(recipe.title());
+        tvPortions.setText(String.valueOf(recipe.portions()));
+        tvPrepTime.setText(String.valueOf(recipe.prepTime()));
+        tvPrepTime.append(getString(R.string.suffix_minutes));
+        tvFavCount.setText(String.valueOf(recipe.favouriteCount()));
+        tvFavCount.append(getString(R.string.suffix_favourite_count));
+
+        ingredientsAdapter.add(FastAdapterMapper.toIngredientItems(recipe.ingredients()));
+        stepsAdapter.add(FastAdapterMapper.toStepItems(recipe.steps()));
+
+        setFabDrawable(recipe.favourited());
+        Glide.with(this).load(recipe.previewImageUrl()).into(ivPreview);
+    }
+
+    private void displayLoading(boolean isLoading) {
+        if (isLoading) {
+            fabProgress.show();
+        } else {
+            fabProgress.hide();
+        }
+    }
+
+    private void displayFavouriteError(Throwable error) {
+        showSnackbar(getString(R.string.error_favourite_post));
+    }
+
+    private void updateFab(Recipe newRecipe) {
+        showSnackbar(newRecipe.favourited() ?
+                getString(R.string.success_recipe_added_favourites) :
+                getString(R.string.success_recipe_removed_favourites));
+
+        setFabDrawable(newRecipe.favourited());
+    }
+
+    private void setFabDrawable(boolean favourite) {
+        fab.setImageResource(favourite ?
+                R.drawable.ic_favorite_white_36dp :
+                R.drawable.ic_favorite_border_white_36dp);
+    }
+
+    private void showSnackbar(String message) {
+        Snackbar.make(coordinator, message, Snackbar.LENGTH_LONG).show();
     }
 }
