@@ -2,8 +2,8 @@ package com.twobonkers.hungry.presentation.feed;
 
 import com.twobonkers.hungry.data.models.Recipe;
 import com.twobonkers.hungry.data.remote.GetRecipesResponse;
-import com.twobonkers.hungry.data.remote.RecipesService;
 import com.twobonkers.hungry.domain.ApiPager;
+import com.twobonkers.hungry.domain.FeedPager;
 import com.twobonkers.hungry.domain.lib.rx.Transformers;
 import com.twobonkers.hungry.presentation.details.RecipeChangeBus;
 import com.twobonkers.hungry.presentation.views.FragmentViewModel;
@@ -34,14 +34,10 @@ public class FeedViewModel extends FragmentViewModel<FeedFragment> implements Fe
     private BehaviorSubject<Void> lastPage = BehaviorSubject.create();
     private Observable<Throwable> error;
 
-    public FeedViewModel(RecipesService service, RecipeChangeBus recipeChangeBus) {
-        ApiPager<GetRecipesResponse, GetRecipesResponse, Integer> apiPager = ApiPager.<GetRecipesResponse, GetRecipesResponse, Integer>builder()
+    public FeedViewModel(FeedPager feedPager, RecipeChangeBus recipeChangeBus) {
+        ApiPager<GetRecipesResponse, GetRecipesResponse, Integer> apiPager = feedPager.builder()
                 .loadMore(loadMore)
                 .startOver(startOver)
-                .makeRequest(page -> service.getRecipes(page, "Bearer HI8TWT963CD1l6gdWfx0CbzPh-5hHKeoU8yuvq3KGEgpJp2TGbL0hy1FowH_IRg25duoKQh5iNvXgc7gD3e3mokc4LkMCAqNywTtoc7x6LRUWVelmo38VFAGk4N9fOJicrZsPfkFnjbiJjr64BTIw7lZUm_HXvrXvdWiCaXaLrH_VpLpalDitavgv2v3uCv26qNh2R25EToYuldxOo4LJVwLAWyk3NN1cGTuFC-olkb98G5x6ubkc0ff4piZnr53CzYEZtI6hbLuU3M28QeAz-BfG2TOlVyTy9juUwnxD5xUMv_ZQD85CfStgZK_bV2JBunfa1Ui9Sl1Sud1_TG2Hy1qQ9BbjNCrebwkIbXrxWLVKDO03UOw_KqAwINjO78cPjjjJYNaFS6LYtvBQvv_jaj9A3UthBtvhAHNoyu9Y4EwbByMyGmw9Rq7H6pLYEdGQzIB3PsD3ybnjhnd2SoE53gduHopC9UubyO3umDouZ2S44Y-ws6QL3fk9bWRphdV"))
-                .mapResponse(response -> response)
-                .stopWhen(response -> response.page() >= response.totalPages())
-                .nextPageParams(page -> page + 1)
                 .build();
 
         recipeChangeBus.recipeChanged()

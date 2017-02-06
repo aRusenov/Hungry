@@ -48,7 +48,7 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
     protected DetailsViewModel createViewModel() {
         HApplication app = (HApplication) getApplication();
         return new DetailsViewModel(
-                new FavouriteRecipesUseCaseImpl(app.getRecipesService()),
+                new FavouriteRecipesUseCaseImpl(app.getRecipesService(), app.getLocalUserRepository()),
                 app.getRecipeChangeBus());
     }
 
@@ -76,7 +76,7 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
         viewModel.outputs.recipe()
                 .compose(bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::updateFab);
+                .subscribe(this::updateRecipe);
 
         viewModel.outputs.loading()
                 .compose(bindToLifecycle())
@@ -101,11 +101,9 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
 
     private void setRecipe(Recipe recipe) {
         getSupportActionBar().setTitle(recipe.title());
-        tvPortions.setText(String.valueOf(recipe.portions()));
-        tvPrepTime.setText(String.valueOf(recipe.prepTime()));
-        tvPrepTime.append(getString(R.string.suffix_minutes));
-        tvFavCount.setText(String.valueOf(recipe.favouriteCount()));
-        tvFavCount.append(getString(R.string.suffix_favourite_count));
+        tvPortions.setText(getString(R.string.recipe_portions, recipe.portions()));
+        tvPrepTime.setText(getString(R.string.recipe_prep_time, recipe.prepTime()));
+        tvFavCount.setText(getString(R.string.recipe_favourite_count, recipe.favouriteCount()));
 
         ingredientsAdapter.add(FastAdapterMapper.toIngredientItems(recipe.ingredients()));
         stepsAdapter.add(FastAdapterMapper.toStepItems(recipe.steps()));
@@ -126,12 +124,14 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
         showSnackbar(getString(R.string.error_favourite_post));
     }
 
-    private void updateFab(Recipe newRecipe) {
+    private void updateRecipe(Recipe newRecipe) {
         showSnackbar(newRecipe.favourited() ?
                 getString(R.string.success_recipe_added_favourites) :
                 getString(R.string.success_recipe_removed_favourites));
 
         setFabDrawable(newRecipe.favourited());
+
+        tvFavCount.setText(getString(R.string.recipe_favourite_count, newRecipe.favouriteCount()));
     }
 
     private void setFabDrawable(boolean favourite) {

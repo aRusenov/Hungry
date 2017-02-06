@@ -7,6 +7,8 @@ import com.twobonkers.hungry.domain.FavouriteRecipeUseCase;
 import com.twobonkers.hungry.presentation.IntentKeys;
 import com.twobonkers.hungry.presentation.views.ActivityViewModel;
 
+import java.util.concurrent.TimeUnit;
+
 import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
@@ -35,6 +37,9 @@ public class DetailsViewModel extends ActivityViewModel<DetailsActivity>
                 .filter(__ -> !loading.hasValue() || !loading.getValue())
                 .withLatestFrom(recipe, (__, r) -> r)
                 .doOnNext(__ -> loading.onNext(true))
+                // Delay because button animation is also delayed by 150ms
+                // Find a better way to do this
+                .delay(150, TimeUnit.MILLISECONDS)
                 .flatMap(r -> favouriteRecipeUseCase.favourite(r.id())
                         .subscribeOn(Schedulers.io())
                         .map(response -> Pair.create(r, response))
@@ -43,7 +48,10 @@ public class DetailsViewModel extends ActivityViewModel<DetailsActivity>
                         .doOnEach(__ -> loading.onNext(false))
                 )
                 .subscribe(res -> {
-                    Recipe newRecipe = res.first.withFavourited(res.second.favourite());
+                    Recipe newRecipe = res.first.withFavouriteCount(
+                            res.first.favouriteCount() + (res.second.favourite() ? 1 : -1),
+                            res.second.favourite());
+
                     recipeChangeBus.sendRecipeChange(newRecipe);
                     this.recipe.onNext(newRecipe);
                 });

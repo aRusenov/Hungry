@@ -30,8 +30,11 @@ public abstract class Recipe implements Parcelable {
         return new AutoValue_Recipe.Builder(this);
     }
 
-    public Recipe withFavourited(boolean favourited) {
-        return toBuilder().favourited(favourited).build();
+    public Recipe withFavouriteCount(int favCount, boolean favourited) {
+        return toBuilder()
+                .favouriteCount(favCount)
+                .favourited(favourited)
+                .build();
     }
 
     @Override

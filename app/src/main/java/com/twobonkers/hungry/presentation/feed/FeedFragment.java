@@ -16,6 +16,7 @@ import com.mikepenz.fastadapter.items.AbstractItem;
 import com.mikepenz.fastadapter_extensions.scroll.EndlessRecyclerOnScrollListener;
 import com.twobonkers.hungry.HApplication;
 import com.twobonkers.hungry.R;
+import com.twobonkers.hungry.domain.FeedPager;
 import com.twobonkers.hungry.presentation.IntentKeys;
 import com.twobonkers.hungry.presentation.details.DetailsActivity;
 import com.twobonkers.hungry.presentation.utils.FastAdapterMapper;
@@ -38,6 +39,14 @@ public class FeedFragment extends BaseFragment<FeedViewModel> {
 
     public static FeedFragment newInstance() {
         return new FeedFragment();
+    }
+
+    @Override
+    protected FeedViewModel createViewModel() {
+        HApplication app = (HApplication) getActivity().getApplication();
+        return new FeedViewModel(
+                new FeedPager(app.getRecipesService(), app.getLocalUserRepository()),
+                app.getRecipeChangeBus());
     }
 
     @Nullable
@@ -76,11 +85,6 @@ public class FeedFragment extends BaseFragment<FeedViewModel> {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        HApplication app = (HApplication) getActivity().getApplication();
-        if (viewModel == null) {
-            viewModel = new FeedViewModel(app.getRecipesService(), app.getRecipeChangeBus());
-        }
-
         viewModel.outputs.recipes()
                 .compose(bindToLifecycle())
                 .compose(observeForUI())

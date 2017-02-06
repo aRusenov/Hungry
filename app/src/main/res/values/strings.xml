@@ -9,6 +9,7 @@
     <string name="success_recipe_added_favourites">Recipe added to favourites.</string>
     <string name="success_recipe_removed_favourites">Removed from favourites.</string>
     <string name="error_favourite_post">Error connecting to server</string>
-    <string name="suffix_minutes">" min"</string>
-    <string name="suffix_favourite_count">" favs"</string>
+    <string name="recipe_portions">"%1d portions"</string>
+    <string name="recipe_prep_time">"%1d min"</string>
+    <string name="recipe_favourite_count">"%1d favs"</string>
 </resources>
