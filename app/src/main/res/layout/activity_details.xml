@@ -66,6 +66,7 @@
             android:layout_gravity="center"
             android:layout_margin="@dimen/fab_margin"
             android:src="@drawable/ic_favorite_white_36dp"
+            app:backgroundTint="@color/colorPrimary"
             app:fabSize="normal"
             />
 
