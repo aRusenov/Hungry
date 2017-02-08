@@ -26,6 +26,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
+import timber.log.Timber;
+
+import static android.view.View.GONE;
 
 public class DetailsActivity extends BaseActivity<DetailsViewModel> {
 
@@ -48,7 +51,7 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
     protected DetailsViewModel createViewModel() {
         HApplication app = (HApplication) getApplication();
         return new DetailsViewModel(
-                new FavouriteRecipesUseCaseImpl(app.getRecipesService(), app.getLocalUserRepository()),
+                new FavouriteRecipesUseCaseImpl(app.getRecipesService(), app.getDatabaseManager(), app.getLocalUserRepository()),
                 app.getRecipeChangeBus());
     }
 
@@ -72,6 +75,11 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
 
         Recipe recipe = getIntent().getParcelableExtra(IntentKeys.RECIPE);
         setRecipe(recipe);
+
+        if (getIntent().getBooleanExtra(IntentKeys.OFFLINE_MODE, false)) {
+            tvFavCount.setVisibility(GONE);
+            fabProgress.setVisibility(GONE);
+        }
 
         viewModel.outputs.recipe()
                 .compose(bindToLifecycle())
@@ -121,6 +129,7 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
     }
 
     private void displayFavouriteError(Throwable error) {
+        Timber.e(error);
         showSnackbar(getString(R.string.error_favourite_post));
     }
 

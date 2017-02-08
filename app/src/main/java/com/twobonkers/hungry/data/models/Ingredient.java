@@ -17,4 +17,19 @@ public abstract class Ingredient implements Parcelable {
     public abstract String name();
     public abstract int quantity();
     public abstract int measurement();
+
+    public static Builder builder() {
+        return new AutoValue_Ingredient.Builder();
+    }
+
+    @AutoValue.Builder public abstract static class Builder {
+
+        public abstract Builder name(String name);
+
+        public abstract Builder quantity(int quantity);
+
+        public abstract Builder measurement(int measurement);
+
+        public abstract Ingredient build();
+    }
 }

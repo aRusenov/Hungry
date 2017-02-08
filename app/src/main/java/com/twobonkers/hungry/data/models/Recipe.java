@@ -14,7 +14,6 @@ public abstract class Recipe implements Parcelable {
     public abstract long id();
     public abstract String title();
     public abstract String previewImageUrl();
-    public abstract Author author();
     public abstract List<Step> steps();
     public abstract List<Ingredient> ingredients();
     public abstract int favouriteCount();
@@ -43,14 +42,13 @@ public abstract class Recipe implements Parcelable {
         return id() == other.id();
     }
 
+
     @AutoValue.Builder public abstract static class Builder {
         public abstract Builder id(long id);
 
         public abstract Builder title(String title);
 
         public abstract Builder previewImageUrl(String previewImageUrl);
-
-        public abstract Builder author(Author author);
 
         public abstract Builder steps(List<Step> steps);
 
@@ -60,9 +58,9 @@ public abstract class Recipe implements Parcelable {
 
         public abstract Builder prepTime(int prepTime);
 
-        public abstract Builder favourited(boolean favourited);
-
         public abstract Builder portions(int portions);
+
+        public abstract Builder favourited(boolean favourited);
 
         public abstract Recipe build();
     }

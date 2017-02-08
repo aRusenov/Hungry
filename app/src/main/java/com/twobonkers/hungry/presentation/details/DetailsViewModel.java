@@ -3,7 +3,7 @@ package com.twobonkers.hungry.presentation.details;
 import android.util.Pair;
 
 import com.twobonkers.hungry.data.models.Recipe;
-import com.twobonkers.hungry.domain.FavouriteRecipeUseCase;
+import com.twobonkers.hungry.domain.FavouriteRecipesUseCase;
 import com.twobonkers.hungry.presentation.IntentKeys;
 import com.twobonkers.hungry.presentation.views.ActivityViewModel;
 
@@ -26,7 +26,7 @@ public class DetailsViewModel extends ActivityViewModel<DetailsActivity>
     private PublishSubject<Throwable> error = PublishSubject.create();
     private BehaviorSubject<Boolean> loading = BehaviorSubject.create();
 
-    public DetailsViewModel(FavouriteRecipeUseCase favouriteRecipeUseCase, RecipeChangeBus recipeChangeBus) {
+    public DetailsViewModel(FavouriteRecipesUseCase favouriteRecipesUseCase, RecipeChangeBus recipeChangeBus) {
         Observable<Recipe> recipe = intent()
                 .map(intent -> intent.getParcelableExtra(IntentKeys.RECIPE))
                 .ofType(Recipe.class)
@@ -38,9 +38,9 @@ public class DetailsViewModel extends ActivityViewModel<DetailsActivity>
                 .withLatestFrom(recipe, (__, r) -> r)
                 .doOnNext(__ -> loading.onNext(true))
                 // Delay because button animation is also delayed by 150ms
-                // Find a better way to do this
+                // Need to find a better way to do this
                 .delay(150, TimeUnit.MILLISECONDS)
-                .flatMap(r -> favouriteRecipeUseCase.favourite(r.id())
+                .flatMap(r -> favouriteRecipesUseCase.favourite(r)
                         .subscribeOn(Schedulers.io())
                         .map(response -> Pair.create(r, response))
                         .doOnError(t -> error.onNext(t))
@@ -48,9 +48,11 @@ public class DetailsViewModel extends ActivityViewModel<DetailsActivity>
                         .doOnEach(__ -> loading.onNext(false))
                 )
                 .subscribe(res -> {
-                    Recipe newRecipe = res.first.withFavouriteCount(
-                            res.first.favouriteCount() + (res.second.favourite() ? 1 : -1),
-                            res.second.favourite());
+                    Recipe old = res.first;
+                    boolean isFavourite = res.second;
+                    Recipe newRecipe = old.withFavouriteCount(
+                            old.favouriteCount() + (isFavourite ? 1 : -1),
+                            isFavourite);
 
                     recipeChangeBus.sendRecipeChange(newRecipe);
                     this.recipe.onNext(newRecipe);

@@ -3,7 +3,9 @@ package com.twobonkers.hungry;
 import android.app.Application;
 
 import com.google.gson.GsonBuilder;
-import com.twobonkers.hungry.data.local.LocalUserRepository;
+import com.twobonkers.hungry.data.local.database.DatabaseManager;
+import com.twobonkers.hungry.data.local.database.SqliteHelper;
+import com.twobonkers.hungry.data.local.preferences.LocalUserRepository;
 import com.twobonkers.hungry.data.remote.RecipesService;
 import com.twobonkers.hungry.domain.lib.autogson.AutoValueAdapterFactory;
 import com.twobonkers.hungry.presentation.details.RecipeChangeBus;
@@ -20,6 +22,7 @@ public class HApplication extends Application {
     private RecipesService recipesService;
     private RecipeChangeBus recipeChangeBus;
     private LocalUserRepository localUserRepository;
+    private DatabaseManager databaseManager;
 
     @Override
     public void onCreate() {
@@ -40,6 +43,7 @@ public class HApplication extends Application {
 
         recipeChangeBus = new RecipeChangeBus();
         localUserRepository = new LocalUserRepository(this);
+        databaseManager = new DatabaseManager(new SqliteHelper(this));
     }
 
     public RecipesService getRecipesService() {
@@ -52,5 +56,9 @@ public class HApplication extends Application {
 
     public LocalUserRepository getLocalUserRepository() {
         return localUserRepository;
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
     }
 }

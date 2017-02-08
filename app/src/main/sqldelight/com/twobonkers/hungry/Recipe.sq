@@ -1,0 +1,28 @@
+CREATE TABLE recipe (
+    _id INTEGER NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    image_url TEXT NOT NULL,
+    prep_time INTEGER NOT NULL,
+    portions INTEGER NOT NULL
+);
+
+add_new:
+INSERT INTO recipe (_id, title, image_url, prep_time, portions)
+VALUES (?, ?, ?, ?, ?);
+
+remove:
+DELETE FROM recipe
+WHERE _id = ?;
+
+get_all:
+SELECT * FROM recipe;
+
+get_steps:
+SELECT r._id "recipe_id", s._id "id", s._order "order", s.description
+FROM recipe r
+INNER JOIN step s ON r._id = s.recipe_id;
+
+get_ingredients:
+SELECT r._id "recipe_id", i._id "id", i.name, i.quantity, i.measurement
+FROM recipe r
+INNER JOIN ingredient i ON r._id = i.recipe_id;

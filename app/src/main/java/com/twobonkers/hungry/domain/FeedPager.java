@@ -2,7 +2,7 @@ package com.twobonkers.hungry.domain;
 
 import android.support.annotation.Nullable;
 
-import com.twobonkers.hungry.data.local.LocalUserRepository;
+import com.twobonkers.hungry.data.local.preferences.LocalUserRepository;
 import com.twobonkers.hungry.data.remote.GetRecipesResponse;
 import com.twobonkers.hungry.data.remote.RecipesService;
 import com.twobonkers.hungry.domain.util.UserUtils;

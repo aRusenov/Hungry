@@ -1,0 +1,16 @@
+CREATE TABLE ingredient (
+    _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    measurement INTEGER NOT NULL,
+    recipe_id INTEGER NOT NULL,
+    FOREIGN KEY (recipe_id) REFERENCES recipe(_id) ON DELETE CASCADE
+);
+
+add_new:
+INSERT INTO ingredient (name, quantity, measurement, recipe_id)
+VALUES (?, ?, ?, ?);
+
+get_all_by_recipe_id:
+SELECT * FROM ingredient
+WHERE recipe_id = ?;

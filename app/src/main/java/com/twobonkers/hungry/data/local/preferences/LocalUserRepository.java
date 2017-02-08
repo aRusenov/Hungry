@@ -1,4 +1,4 @@
-package com.twobonkers.hungry.data.local;
+package com.twobonkers.hungry.data.local.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;

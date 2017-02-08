@@ -5,6 +5,7 @@ import com.twobonkers.hungry.data.models.Recipe;
 import com.twobonkers.hungry.data.models.Step;
 import com.twobonkers.hungry.presentation.details.IngredientItem;
 import com.twobonkers.hungry.presentation.details.StepItem;
+import com.twobonkers.hungry.presentation.favourite.FavouriteRecipeItem;
 import com.twobonkers.hungry.presentation.feed.FeedItem;
 
 import java.util.ArrayList;
@@ -16,6 +17,15 @@ public class FastAdapterMapper {
         List<FeedItem> feedItems = new ArrayList<>(recipes.size());
         for (int i = 0; i < recipes.size(); i++) {
             feedItems.add(new FeedItem(recipes.get(i)));
+        }
+
+        return feedItems;
+    }
+
+    public static List<FavouriteRecipeItem> toFavouriteItems(List<Recipe> recipes) {
+        List<FavouriteRecipeItem> feedItems = new ArrayList<>(recipes.size());
+        for (int i = 0; i < recipes.size(); i++) {
+            feedItems.add(new FavouriteRecipeItem(recipes.get(i)));
         }
 
         return feedItems;

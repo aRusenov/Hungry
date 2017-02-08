@@ -12,4 +12,8 @@
     <string name="recipe_portions">"%1d portions"</string>
     <string name="recipe_prep_time">"%1d min"</string>
     <string name="recipe_favourite_count">"%1d favs"</string>
+
+    <string name="info_no_favourite">You have no favourite recipes. :(</string>
+    <string name="info_steps">Steps</string>
+    <string name="info_ingredients">Ingredients</string>
 </resources>

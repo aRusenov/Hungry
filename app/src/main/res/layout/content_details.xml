@@ -29,7 +29,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:weightSum="3"
             >
 
             <TextView
@@ -67,7 +66,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:layout_marginTop="16dp"
-            android:text="Ingredients"
+            android:text="@string/info_ingredients"
             android:textSize="18sp"
             />
 
@@ -84,7 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:layout_marginTop="16dp"
-            android:text="Steps"
+            android:text="@string/info_steps"
             android:textSize="18sp"
             />
 

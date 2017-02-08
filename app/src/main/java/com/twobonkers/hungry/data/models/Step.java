@@ -11,4 +11,16 @@ public abstract class Step implements Parcelable {
 
     public abstract String description();
     public abstract int order();
+
+    public static Builder builder() {
+        return new AutoValue_Step.Builder();
+    }
+
+    @AutoValue.Builder public abstract static class Builder {
+        public abstract Builder description(String description);
+
+        public abstract Builder order(int order);
+
+        public abstract Step build();
+    }
 }

@@ -53,23 +53,11 @@
                 tools:text="Gordon Ramsay's Home Pizza"
                 />
 
-            <TextView
-                android:id="@+id/tv_author"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/tv_title"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:text='@{"by " + recipe.author().name}'
-                android:textSize="15sp"
-                tools:text="by John Kerry"
-                />
-
             <View
                 android:id="@+id/separator"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@id/tv_author"
+                android:layout_below="@id/tv_title"
                 android:layout_marginBottom="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
