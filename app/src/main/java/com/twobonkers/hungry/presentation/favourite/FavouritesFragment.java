@@ -11,10 +11,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mikepenz.fastadapter.commons.adapters.FastItemAdapter;
-import com.twobonkers.hungry.HApplication;
 import com.twobonkers.hungry.R;
-import com.twobonkers.hungry.domain.GetSavedRecipesUseCaseImpl;
 import com.twobonkers.hungry.presentation.IntentKeys;
+import com.twobonkers.hungry.presentation.dagger.FavouritesModule;
 import com.twobonkers.hungry.presentation.details.DetailsActivity;
 import com.twobonkers.hungry.presentation.utils.FastAdapterMapper;
 import com.twobonkers.hungry.presentation.views.BaseFragment;
@@ -35,11 +34,10 @@ public class FavouritesFragment extends BaseFragment<FavouritesViewModel> {
     }
 
     @Override
-    protected FavouritesViewModel createViewModel() {
-        HApplication app = (HApplication) getActivity().getApplication();
-        return new FavouritesViewModel(
-                new GetSavedRecipesUseCaseImpl(app.getDatabaseManager())
-        );
+    protected void createViewModel() {
+        application().appComponent()
+                .plus(new FavouritesModule())
+                .inject(this);
     }
 
     @Nullable

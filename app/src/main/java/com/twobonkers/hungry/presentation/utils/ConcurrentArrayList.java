@@ -1,4 +1,4 @@
-package com.twobonkers.hungry.presentation.feed;
+package com.twobonkers.hungry.presentation.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;

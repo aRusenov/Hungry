@@ -14,11 +14,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.mikepenz.fastadapter.commons.adapters.FastItemAdapter;
-import com.twobonkers.hungry.HApplication;
 import com.twobonkers.hungry.R;
 import com.twobonkers.hungry.data.models.Recipe;
-import com.twobonkers.hungry.domain.FavouriteRecipesUseCaseImpl;
 import com.twobonkers.hungry.presentation.IntentKeys;
+import com.twobonkers.hungry.presentation.dagger.DetailsModule;
 import com.twobonkers.hungry.presentation.utils.FastAdapterMapper;
 import com.twobonkers.hungry.presentation.views.BaseActivity;
 
@@ -48,11 +47,10 @@ public class DetailsActivity extends BaseActivity<DetailsViewModel> {
     protected @BindView(R.id.tv_prep) TextView tvPrepTime;
 
     @Override
-    protected DetailsViewModel createViewModel() {
-        HApplication app = (HApplication) getApplication();
-        return new DetailsViewModel(
-                new FavouriteRecipesUseCaseImpl(app.getRecipesService(), app.getDatabaseManager(), app.getLocalUserRepository()),
-                app.getRecipeChangeBus());
+    protected void initializeViewModel() {
+        application().appComponent()
+                .plus(new DetailsModule())
+                .inject(this);
     }
 
     @Override

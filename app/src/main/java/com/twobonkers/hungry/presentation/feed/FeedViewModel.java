@@ -6,6 +6,7 @@ import com.twobonkers.hungry.domain.ApiPager;
 import com.twobonkers.hungry.domain.FeedPager;
 import com.twobonkers.hungry.domain.lib.rx.Transformers;
 import com.twobonkers.hungry.presentation.details.RecipeChangeBus;
+import com.twobonkers.hungry.presentation.utils.ConcurrentArrayList;
 import com.twobonkers.hungry.presentation.views.FragmentViewModel;
 
 import java.util.Collections;

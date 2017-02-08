@@ -5,13 +5,25 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
+import com.twobonkers.hungry.HApplication;
 import com.twobonkers.hungry.presentation.utils.LifecycleRetainer;
+
+import javax.inject.Inject;
 
 public abstract class BaseActivity<ViewModel extends ActivityViewModel> extends RxAppCompatActivity {
 
-    protected ViewModel viewModel;
+    protected @Inject ViewModel viewModel;
 
-    protected abstract ViewModel createViewModel();
+    /**
+     * Called in {@link #onCreate(Bundle)} if the view model is null to assign a value to {@link BaseFragment#viewModel}.
+     * The assigned value is later cached in {@link #onSaveInstanceState(Bundle)} and re-used in case of
+     * activity recreation.
+     */
+    protected abstract void initializeViewModel();
+
+    protected HApplication application() {
+        return (HApplication) getApplication();
+    }
 
     @CallSuper
     @Override
@@ -19,7 +31,7 @@ public abstract class BaseActivity<ViewModel extends ActivityViewModel> extends 
         super.onCreate(savedInstanceState);
         viewModel = LifecycleRetainer.getInstance().get(savedInstanceState);
         if (viewModel == null) {
-            viewModel = createViewModel();
+            initializeViewModel();
         }
 
         viewModel.intent(getIntent());
